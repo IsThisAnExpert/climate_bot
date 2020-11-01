@@ -5,10 +5,14 @@ It can be difficult for the average user of a social media platform to identify 
 
 ## What it does 
 
-1. Parses a manully curated list of experts an assigns a trustability score following this equation {description_here}.
+1. Parses a manully curated list of experts an assigns a credibility score following this equation {insert *big_important_description_here*}.
 2. Populates a MariaDB database with relevant tweet information {description}
-3. Hears a twitter stream for any tweet with the `@IsThisAnExpert` mention. (right now only can lisen to retweets quoting it, further dev: answer to tweet replies)
-4. Calclulates the trustability score for the user calling the bot
+3. Hears a twitter stream for any tweet with the `@IsThisAnExpert` mention. 
+4. Calclulates the credibility score for the tweet of the user calling the bot.
+5. Replies to the mention* with a message with the credibility score of the person. 
+ 
+
+###### * right now only can answer to retweets with a quouted reply calling it (further dev: answer to tweet replies)
 
 ## Install
 
