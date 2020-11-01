@@ -5,7 +5,7 @@ It can be difficult for the average user of a social media platform to identify 
 
 ## What it does 
 
-1. Parses a manully curated list of experts an assigns a credibility score following this equation {see *credibility score* below}.
+1. Parses a manually curated list of experts an assigns a credibility score following this equation {see *credibility score* below}.
 2. Populates a MariaDB database with relevant tweet information {description}
 3. Hears a twitter stream for any tweet with the `@IsThisAnExpert` mention. 
 4. Calclulates the credibility score for the tweet of the user calling the bot.
