@@ -1,6 +1,6 @@
 # :seedling: @IsThisAnExpert: The ClimateChange Hackathon bot!
 
-It can be difficult for the average user of a social media platform to identify if a post on the climate crisis is based on a reliable source or misinformation. As a consequence, erroneous ‘news’ are reproduced or go viral. Some users even intentionally mislead the internet community. This behaviour can cause confusion in raising awareness and taking action on climate crisis.
+It can be difficult for the average user of a social media platform to identify if a post on the climate crisis is based on a reliable source or misinformation. As a consequence, erroneous ‘news’ are reproduced or go viral. Some users even intentionally mislead the internet community. This behaviour can cause confusion in raising awareness and taking action on the climate crisis.
 `@IsThisAnExpert` is a Twitter bot that helps users see the credibility of another user on the climate crisis. Retweet a post on climate change to @IsThisAnExpert and it will run an assessment on the credibility of the user and their expertise on climate change. Created for the [ClimateChange Hackaton](https://www.goethe.de/prj/one/en/gea/for/clc/ag.html) in frame of the [GENERATION A ](https://www.goethe.de/prj/one/en/gea.html) — project.
 
 ## What it does 
