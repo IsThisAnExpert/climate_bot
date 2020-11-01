@@ -1,29 +1,19 @@
-# :robot: Bot, what a concept! 
+# :seedling: @IsThisAnExpert The ClimateChange Hackaton bot!
 
-Built on top of @peterdalle's [Twitterbot](https://github.com/peterdalle/twitterbot), uses `tweepy` instead of `twython` and adds further functionality: 
+It can be difficult for the average user of a social media platform to identify if a post on the climate crisis is based on a reliable source or misinformation. As a consequence, erroneous ‘news’ are reproduced or go viral. Some users even intentionally mislead the internet community. This behaviour can cause confusion in raising awareness and taking action on climate crisis.
+@IsThisAnExpert is a Twitter bot that helps users see the credibility of another user on the climate crisis. Retweet a post on climate change to @IsThisAnExpert and it will run an assessment on the credibility of the user and their expertise on climate change. Created for the [ClimateChange Hackaton](https://www.goethe.de/prj/one/en/gea/for/clc/ag.html) in frame of the [GENERATION A ](https://www.goethe.de/prj/one/en/gea.html) — project.
 
-* reads and parses a list of RSS feeds. Posts its title and links to a Twitter account.
-* retweets previous post after a determined time. 
-* searches tweets for keywords or hashtags and retweet those tweets.
-* retweets the most up-voted and retweeted posts from a given distribution list.
-* schedule jobs for any of the above 
+## What it does 
 
-All functions can be used independently.
+1. Parses a manully curated list of experts an assigns a trustability score following this equation {description_here}.
+2. Populates a MariaDB database with relevant tweet information {description}
+3. Hears a twitter stream for any tweet with the `@IsThisAnExpert` mention. (right now only can lisen to retweets quoting it, further dev: answer to tweet replies)
+4. Calclulates the trustability score for the user calling the bot
 
 ## Install
 
-1. Download or git clone Twitterbot:
-   - `git clone https://github.com/franasa/bot_what_a_concept`
-2. Install dependencies:
-   - `pip install feedparser`
-   - `pip install tweepy`
-   - `pip install schedule`
-3. Create a [Twitter application](https://apps.twitter.com/), and generate keys, tokens etc.
-4. Modifiy the settings in the source code.
-   - Modify `feed_urls` to add the RSS feeds you want to read.
-   - Modify the variables in the `access.py` file and add keys, tokens etc. for connecting to your Twitter app.
-   - Modify `retweet_include_words` for keywords you want to search and retweet, and `retweet_exclude_words` for keywords you would like to exclude from retweeting. For example `retweet_include_words = ["foo"]` and `retweet_exclude_words = ["bar"]` will include any tweet with the word "foo", as long as the word "bar" is absent. This list can also be left empty, i.e. `retweet_exclude_words = []`.
-   - Modify OR add jobs to the `scheduled_job()` function.
+tbd, but similar as https://github.com/franasa/bot_what_a_concept
+
 ## Requirements
 
 * Python 3+
@@ -31,38 +21,16 @@ All functions can be used independently.
 
 ## Usage
 
-Read the RSS feeds and post to Twitter account:
+Enter the infinite loop:tada: :
 
 ```bash
-$ python d_what_a_c.py rss   
+$ python d_what_a_c.py  start
 ```
 
-Search globally for tweets and retweet them:
-
-```bash
-$ python d_what_a_c.py rtg
-```
-Search for tweets within a Twitter list and retweet them:
-
-```bash
-$ python d_what_a_c.py rtl
-```
-Retweet last own tweet:
-
-```bash
-$ python d_what_a_c.py rto 
-```
-## :tada: Run scheduled jobs on infinite loop:
-
-[Here](https://schedule.readthedocs.io/en/stable/) you can learn how set up tasks for the the `scheduled_job()` function
 
 There are some nice free cloud solutions such as [pythonanywhere](https://www.pythonanywhere.com/), where you can start a console and leave the script running:
 
-```bash
-$ python d_what_a_c.py  sch
-```
 
-Take a look at a slightly controversial [example bot](https://twitter.com/drug_papers).
 
 :green_heart:
 
