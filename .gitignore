@@ -1,2 +1,4 @@
+__pycache__/
+.ipynb_checkpoints/
 17_climate_hackaton.ipynb
 access.py
