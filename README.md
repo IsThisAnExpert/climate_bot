@@ -32,6 +32,7 @@ A user’s credibility score is calculated by tweets and retweets of credible so
 
 ## Requirements
 
+* `~/.my.cnf` file with database connection parameters
 * Python 3+
 * Twitter developer account
 * Java JRE 8
@@ -39,13 +40,38 @@ A user’s credibility score is calculated by tweets and retweets of credible so
 
 ## Usage
 
-Enter the infinite loop:tada: :
+### database 
+usage: `db_query_api.py [-h] [-p CSV_FILE] [-d MARIADB_GROUP] [-u USER_HANDLE]`
+
+arguments:
+
+`-h, --help `          
+
+show help message and exit
+
+`-p CSV_FILE, --csv_file`
+
+path to the csv file with the twitter handles
+
+`-d MARIADB_GROUP, --mariadb_group`     
+                   
+name of the MariaDB group on the `.my.cnf` config file with connection parameters
+
+`-u USER_HANDLE, --user_handle`
+
+use to query/insert one user handle at a time
+
+
+
+### main script
+
+:tada: to deploy the bot for automatically reply any mention run:
 
 ```bash
 $ python d_what_a_c.py  start
 ```
 
-There are some free cloud solutions such as [pythonanywhere](https://www.pythonanywhere.com/) to test-deploy the app.
+There are free cloud solutions such as [pythonanywhere](https://www.pythonanywhere.com/) where you can test-deploy the app.
 
 
 :green_heart:

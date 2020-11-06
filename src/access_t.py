@@ -1,0 +1,13 @@
+
+
+# Consumer:
+CONSUMER_KEY    = ''
+CONSUMER_SECRET = ''
+
+# Access:
+BEARER_TOKEN  = ''
+ACCESS_SECRET = ''
+
+# Access:
+ACCESS_TOKEN  = ''
+ACCESS_SECRET = ''
