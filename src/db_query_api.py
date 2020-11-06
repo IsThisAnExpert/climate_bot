@@ -90,7 +90,7 @@ def fill_database(user):
 
     insert_vals=(user_id, user,'',created_at)
     sql = f'INSERT IGNORE INTO user ({tables_dic["user"]}) VALUES (%s,%s,"%s",%s);'
-    print((sql%insert_vals))
+    # print((sql%insert_vals))
     c.execute(sql,insert_vals)
 
     for tweet in tweets:
@@ -117,14 +117,10 @@ def fill_database(user):
 
 
         ## table tweet#############################
-#         print(created_at)
         insert_vals_sql_tweet=(tweet_id,tweet_text,user_id,created_at,tweet_url,is_rt,user)
         sql_tweet = f'INSERT IGNORE INTO tweet ({tables_dic["tweet"]}) VALUES (%s,"%s",%s,"%s","%s",%s,%s);'
-
-        print(sql_tweet% insert_vals_sql_tweet)
+        # print(sql_tweet% insert_vals_sql_tweet)
         c.execute(sql_tweet,insert_vals_sql_tweet)
-
-#         if is_rt == 1:
 
         if 'retweeted_status' in tweet:
 
@@ -136,9 +132,10 @@ def fill_database(user):
 
             insert_vals_rt=(tweet_id, 0, user_id, original_author)
             sql_retweet = f'INSERT IGNORE INTO retweet ({tables_dic["retweet"]}) VALUES (%s, %s,%s,%s);'
-            print(sql% insert_vals_rt)
-#             c.execute(sql_retweet,insert_vals_rt)
+            print(sql_retweet% insert_vals_rt)
+            c.execute(sql_retweet,insert_vals_rt)
 
+    db.commit()
 
 if args.user_handle:
     ## to insert just one user in the db
@@ -155,7 +152,6 @@ elif args.csv_file:
         count += 1
         import_user = (row[3][1:])
         fill_database(import_user)
-else:
-    print('something is missing here')
 
-db.commit()
+
+
