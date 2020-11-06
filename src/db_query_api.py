@@ -130,7 +130,7 @@ def fill_database(user):
 #             original_author=user_id
 #             retweeted_id='?'
 
-            insert_vals_rt=(tweet_id, 0, user_id, original_author)
+            insert_vals_rt=(0, tweet_id, user_id, original_author)
             sql_retweet = f'INSERT IGNORE INTO retweet ({tables_dic["retweet"]}) VALUES (%s, %s,%s,%s);'
             print(sql_retweet% insert_vals_rt)
             c.execute(sql_retweet,insert_vals_rt)
