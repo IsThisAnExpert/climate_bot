@@ -29,18 +29,25 @@ class MyStreamListener(tweepy.StreamListener):
         else:
             try:
                 ## catch nesting
-
                 replied_to=status.in_reply_to_screen_name
                 answer_user=status.user.screen_name
                 answer_id=status.id
+                ## ignore replies that by default contain mention
+                in_reply_to_status_id=status.in_reply_to_status_id
+                in_reply_to_user_id=status.in_reply_to_user_id
+
+                print(replied_to, in_reply_to_status_id,
+in_reply_to_user_id)
 
             except AttributeError:
 
                 replied_to=status.in_reply_to_screen_name
                 answer_user=status.user.screen_name
                 answer_id=status.id
+                in_reply_to_status_id=status.in_reply_to_status_id
+                in_reply_to_user_id=status.in_reply_to_user_id
 
-            status_var="{},{},{}".format(answer_user,replied_to,answer_id)
+            status_var=f"{answer_user},{replied_to},{answer_id}"
 
             with open('hold_that_tweet.txt','w') as tf:
                 tf.write(status_var)
@@ -53,20 +60,17 @@ class MyStreamListener(tweepy.StreamListener):
 
             # set the scores here
             if score <= 5:
-                update_status="""@{} soon you will know if
-                                @{} has a score of {} in our database.
-                                    to learn more visit bit.ly/test""".format(contents.split(',')[0],contents.split(',')[1],'$SCORE')
+                update_status=f"Thanks for calling me, soon you will know if @{contents.split(',')[1]} has a {'-SCORE-'} in our database. to learn more visit https://bit.ly/3jSUTyJ"
             elif score > 5:
-                update_status="""@{} soon you will know if
-                                @{} has a score of {} in our database.
-                                    to learn more visit bit.ly/test""".format(contents.split(',')[0],contents.split(',')[1],'$SCORE')
+                update_status=f"Thanks for calling me,soon you will know if @{contents.split(',')[1]} has a {'-SCORE-'} in our database. to learn more visit https://bit.ly/3jSUTyJ"
             else:
-                update_status="""@{} soon you will know if
-                                @{} has a score of {} in our database.
-                                    to learn more visit bit.ly/test""".format(contents.split(',')[0],contents.split(',')[1],'$SCORE')
+                update_status=f"Thanks for calling me,soon you will know if @{contents.split(',')[1]} has a {'-SCORE-'} in our database. to learn more visit https://bit.ly/3jSUTyJ"
 
-            # try:
-            api.update_status(update_status,contents.split(',')[2])
+            # don't repty to yourself!!
+            if status.in_reply_to_user_id != 1319577341056733184:
+
+                api.update_status(update_status,in_reply_to_status_id=contents.split(',')[2],
+                auto_populate_reply_metadata=True,)
 
 
     def on_error(self, status):
