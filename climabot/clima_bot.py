@@ -1,8 +1,7 @@
 #!/usr/bin/env python3.7
-import csv, time
 import tweepy
-import json,sys
-from access import * ## change `priv_access` to `access` with your API tokens
+import sys
+from climabot.access import * ## change `priv_access` to `access` with your API tokens
 import subprocess
 
 
@@ -49,9 +48,9 @@ in_reply_to_user_id)
 
             status_var=f"{answer_user},{replied_to},{answer_id}"
 
-            with open('hold_that_tweet.txt','w') as tf:
+            with open('hold_that_tweet.txt', 'w') as tf:
                 tf.write(status_var)
-            with open('hold_that_tweet.txt','r') as tf:
+            with open('hold_that_tweet.txt', 'r') as tf:
                 contents = tf.read()
 
             ## add for Paul's tool

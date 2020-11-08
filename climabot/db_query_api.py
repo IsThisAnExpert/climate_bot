@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import MySQLdb.cursors
 import pandas as pd
 import argparse
@@ -5,15 +6,16 @@ from argparse import RawTextHelpFormatter
 from os.path import expanduser
 from configobj import ConfigObj
 import tweepy, time
-from access import *  ## change `priv_access` to `access` with your API tokens
+from climabot.access import *  ## change `priv_access` to `access` with your API tokens
 
 
 #  define args
 parser = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=RawTextHelpFormatter)
-parser.add_argument("-p", "--csv_file", help="path to the csv file with the twitter handles")
-parser.add_argument("-d", "--mariadb_group", help="name of the MariaDB group on the `.my.cnf` config file with connection parameters")
-parser.add_argument("-u", "--user_handle", help="user handle to query")
+group = parser.add_mutually_exclusive_group(required=True) ## add mutually exclusive required args
+parser.add_argument("-d", "--mariadb_group", help="name of the MariaDB group on the `.my.cnf` config file with connection parameters",required=True)
+group.add_argument("-u", "--user_handle", help="user handle to query")
+group.add_argument("-f", "--csv_file", help="path to the csv file with the twitter handles to parse in the first (0) column")
 
 # get variables
 args = parser.parse_args()
@@ -76,7 +78,7 @@ def fill_database(user):
     created_at=user_data['created_at']
     user_id=user_data['id']
 
-    #     dictionary for the columns insert statement
+    # dictionary for the columns insert statement
     tables_dic={}
     for table in tables_list:
         sql = f"DESCRIBE {table};"
@@ -98,41 +100,45 @@ def fill_database(user):
         ## tweet variables
         created_at=tweet['created_at']
         tweet_id=tweet['id']  ## tweet_id
-#         is_rt=tweet['retweeted'] ### does not work, gotta check why but
-        if 'retweeted_status' in tweet:  ## but this works!
+        tweet_text=tweet['full_text']  ## message of the tweet
+        ## check if is rt
+        if 'retweeted_status' in tweet:
             is_rt=True
         else: is_rt=False
 
-        tweet_text=tweet['full_text']  ## message of the tweet
-
-
-        ## user variables
-        user_id=tweet['user']['id']
-#         created_at = user_id.created_at
-
-        if 'media' in tweet['entities']:
-            tweet_url=(tweet['entities']['media'][0]['url'])
-        else:
-            tweet_url=''
-
-
         ## table tweet#############################
-        insert_vals_sql_tweet=(tweet_id,tweet_text,user_id,created_at,tweet_url,is_rt,user)
-        sql_tweet = f'INSERT IGNORE INTO tweet ({tables_dic["tweet"]}) VALUES (%s,"%s",%s,"%s","%s",%s,%s);'
+        insert_vals_sql_tweet=(tweet_id,tweet_text,user_id,created_at,is_rt,user)
+        sql_tweet = f'INSERT IGNORE INTO tweet ({tables_dic["tweet"]}) VALUES (%s,"%s",%s,"%s",%s,"%s");'
         # print(sql_tweet% insert_vals_sql_tweet)
         c.execute(sql_tweet,insert_vals_sql_tweet)
 
-        if 'retweeted_status' in tweet:
+        ## if is a retweet insert all data from the original tweet(user and tweet info)
+        if is_rt:
+            ## retweeted user
+            original_author_id=tweet['retweeted_status']['user']['id_str']
+            original_author_screen = tweet['retweeted_status']['user']['screen_name']
+            original_author_created = tweet['retweeted_status']['user']['created_at']
+            # retweeted_id=tweet['retweeted_status']['id_str']
+            insert_vals = (original_author_id, original_author_screen, '', original_author_created)
+            sql = f'INSERT IGNORE INTO user ({tables_dic["user"]}) VALUES (%s,%s,"%s",%s);'
+            # print((sql%insert_vals))
+            c.execute(sql, insert_vals)
 
-            original_author=tweet['retweeted_status']['user']['id_str']
-            retweeted_id=tweet['retweeted_status']['id_str']
-#         else:
-#             original_author=user_id
-#             retweeted_id='?'
+            ## retweeted tweet info
+            original_created_at=tweet['retweeted_status']['created_at']
+            original_tweet_id = tweet['retweeted_status']['id']
+            original_tweet_text = tweet['retweeted_status']['full_text']
+            ## insert in table tweet #############################
+            insert_vals_sql_tweet = (original_tweet_id, original_tweet_text, original_author_id, original_created_at, False, original_author_screen)
+            sql_tweet = f'INSERT IGNORE INTO tweet ({tables_dic["tweet"]}) VALUES (%s,"%s",%s,"%s",%s,%s);'
+            # print(sql_tweet% insert_vals_sql_tweet)
+            c.execute(sql_tweet, insert_vals_sql_tweet)
 
-            insert_vals_rt=(0, tweet_id, user_id, original_author)
-            sql_retweet = f'INSERT IGNORE INTO retweet ({tables_dic["retweet"]}) VALUES (%s, %s,%s,%s);'
-            print(sql_retweet% insert_vals_rt)
+            ## insert in table retweet
+            ## insert who retweeted @greta; their id, greta_id; and the original tweet_id, original_tweet_id
+            insert_vals_rt=(tweet_id, user_id, original_tweet_id)
+            sql_retweet = f'INSERT IGNORE INTO retweet ({tables_dic["retweet"]}) VALUES (%s,%s,%s);'
+            # print(sql_retweet% insert_vals_rt)
             c.execute(sql_retweet,insert_vals_rt)
 
     db.commit()
@@ -142,15 +148,16 @@ if args.user_handle:
     fill_database(args.user_handle)
 
 elif args.csv_file:
+    ## to insert all users from a csv
     files_path = args.csv_file
     twitter_handles = pd.read_csv(files_path)
-    print(twitter_handles.head())
 
     count = 0
     # feed that db!!
     for i, row in twitter_handles.iterrows():
         count += 1
-        import_user = (row[3][1:])
+        import_user = (row[0][1:])
+        print(import_user)
         fill_database(import_user)
 
 
