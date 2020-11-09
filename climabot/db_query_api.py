@@ -6,6 +6,7 @@ from argparse import RawTextHelpFormatter
 from os.path import expanduser
 from configobj import ConfigObj
 import tweepy, time
+from datetime import datetime
 from climabot.access import *  ## change `priv_access` to `access` with your API tokens
 
 
@@ -75,7 +76,8 @@ def fill_database(user):
                                tweet_mode = 'extended'
                                )
     user_data = api.get_user(user)
-    created_at=user_data['created_at']
+    ## convert to datetime
+    created_at = datetime.strftime(datetime.strptime(user_data['created_at'], '%a %b %d %H:%M:%S +0000 %Y'), '%Y-%m-%d %H:%M:%S')
     user_id=user_data['id']
 
     # dictionary for the columns insert statement
@@ -108,7 +110,7 @@ def fill_database(user):
 
         ## table tweet#############################
         insert_vals_sql_tweet=(tweet_id,tweet_text,user_id,created_at,is_rt,user)
-        sql_tweet = f'INSERT IGNORE INTO tweet ({tables_dic["tweet"]}) VALUES (%s,"%s",%s,"%s",%s,"%s");'
+        sql_tweet = f'INSERT IGNORE INTO tweet ({tables_dic["tweet"]}) VALUES (%s,"%s",%s,%s,%s,%s);'
         # print(sql_tweet% insert_vals_sql_tweet)
         c.execute(sql_tweet,insert_vals_sql_tweet)
 
