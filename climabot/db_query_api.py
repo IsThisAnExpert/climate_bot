@@ -18,13 +18,36 @@ parser.add_argument("-d", "--mariadb_group", help="name of the MariaDB group on 
 group.add_argument("-u", "--user_handle", help="user handle to query")
 group.add_argument("-f", "--csv_file", help="path to the csv file with the twitter handles to parse in the first (0) column")
 
-# get variables
-args = parser.parse_args()
-config_db = args.mariadb_group
-user_handle = args.user_handle
 
-## the config file for mariadb databases
-config = (ConfigObj(expanduser('~/.my.cnf')))
+def main():
+    # get variables
+    args = parser.parse_args()
+    config_db = args.mariadb_group
+    user_handle = args.user_handle
+
+    ## the config file for mariadb databases
+    config = (ConfigObj(expanduser('~/.my.cnf')))
+    
+    db = connect(conf_db=config_db, database='hackathon')
+    c = db.cursor()
+    
+    if args.user_handle:
+        ## to insert just one user in the db
+        fill_database(args.user_handle)
+
+    elif args.csv_file:
+        ## to insert all users from a csv
+        files_path = args.csv_file
+        twitter_handles = pd.read_csv(files_path)
+
+        count = 0
+        # feed that db!!
+        for i, row in twitter_handles.iterrows():
+            count += 1
+            import_user = (row[0][1:])
+            print(import_user)
+            fill_database(import_user)
+
 
 
 # Setup API:
@@ -55,9 +78,6 @@ def connect(conf_db, database=""):
                            port=int(config[conf_db]['port']),
                            password=config[conf_db]['password'],
                            database=database)
-
-db = connect(conf_db=config_db, database='hackathon')
-c = db.cursor()
 
 def fill_database(user):
 
@@ -145,22 +165,5 @@ def fill_database(user):
 
     db.commit()
 
-if args.user_handle:
-    ## to insert just one user in the db
-    fill_database(args.user_handle)
-
-elif args.csv_file:
-    ## to insert all users from a csv
-    files_path = args.csv_file
-    twitter_handles = pd.read_csv(files_path)
-
-    count = 0
-    # feed that db!!
-    for i, row in twitter_handles.iterrows():
-        count += 1
-        import_user = (row[0][1:])
-        print(import_user)
-        fill_database(import_user)
-
-
-
+if __name__ == "__main__":
+    main()
