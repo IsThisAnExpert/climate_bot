@@ -11,6 +11,7 @@ setup(name='climabot',
       packages =  ['climabot'],
       keywords=['Climate Change', 'fact-checking', 'FFF', 'scientist for future', 'S4FHD'],
       scripts=['climabot/db_query_api.py', 'climabot/clima_bot.py'],
+      entry_points={'console_scripts':['climabot_launch=climabot.run:run_bot','hello_wo=climabot.db_query_api:print_hello']},
       install_requires=[
           'pandas',
             'pymysql',
