@@ -21,14 +21,15 @@ A user’s credibility score is calculated by tweets and retweets of credible so
 
 ## Install
 
-1. Download or git clone Twitterbot:
-* `git clone https://github.com/franasa/clima_bot`
-2. Install dependencies:
-* `pip install feedparser`
-* `pip install tweepy`
-* `pip install schedule`
-3. Create a Twitter application, and generate keys, tokens etc.
-4. Modify the variables in the access.py file and add keys, tokens etc. for connecting to your Twitter app.
+0. Install required tools (developed on Fedora 32 unix distribution)
+    * `sudo yum install python3-devel mysql-devel gcc`
+1. Create a Twitter application, and generate keys, tokens etc. 
+2. Modify the variables in the access.py file and add keys, tokens etc. for connecting to your Twitter app.
+3. Install the [`java-credibility-tool`](https://github.com/IsThisAnExpert/java-credibility-tool) 
+4. Download or git clone the **clima_bot**:
+    * `git clone https://github.com/franasa/clima_bot`
+5. Install the **climabot**:
+    * cd into `climabot` and run `pip install .`
 
 ## Requirements
 
@@ -41,37 +42,50 @@ A user’s credibility score is calculated by tweets and retweets of credible so
 ## Usage
 
 ### database 
-usage: `db_query_api.py [-h] [-p CSV_FILE] [-d MARIADB_GROUP] [-u USER_HANDLE]`
+
+Script to populate a MySQL/MariaDB with Twitter handles of a manually parsed list of experts.
+
+usage: 
+* `db_query_api.py [-h] [-p CSV_FILE] [-d MARIADB_GROUP] [-u USER_HANDLE]`
 
 arguments:
 
-`-h, --help `          
-
+* `-h, --help `          
 show help message and exit
 
-`-p CSV_FILE, --csv_file`
-
-path to the csv file with the twitter handles
-
-`-d MARIADB_GROUP, --mariadb_group`     
-                   
+* `-d MARIADB_GROUP, --mariadb_group`     
 name of the MariaDB group on the `.my.cnf` config file with connection parameters
 
-`-u USER_HANDLE, --user_handle`
+* `-p CSV_FILE, --csv_file`
+path to the csv file with the twitter handles
 
+* `-u USER_HANDLE, --user_handle`
 use to query/insert one user handle at a time
 
+note : `-p` and `-u` are mutually exclusive arguments.
 
 
-### main script
+### running the bot
 
-:tada: to deploy the bot for automatically reply any mention run:
+Main script of the **climabot** to automatically reply to mentions with the calculated credibility score
+
+usage: 
+* `clima_bot.py  [start] [path]`
+
+positional arguments:
+
+* `start`
+   start the bot
+
+* `path`
+ path to the java-credibility-tool
+
+:tada: 
+to deploy the bot for automatically reply any mention run:
+
 
 ```bash
-$ python d_what_a_c.py  start
+$ clima_bot.py  start <path>/credibility-0.0.7.jar
 ```
 
-There are free cloud solutions such as [pythonanywhere](https://www.pythonanywhere.com/) where you can test-deploy the app.
-
-
-:green_heart:
+:tada:
