@@ -9,7 +9,6 @@ import tweepy, time
 from datetime import datetime
 from climabot.access import *  ## change `priv_access` to `access` with your API tokens
 
-
 #  define args
 parser = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=RawTextHelpFormatter)
@@ -17,14 +16,6 @@ group = parser.add_mutually_exclusive_group(required=True) ## add mutually exclu
 parser.add_argument("-d", "--mariadb_group", help="name of the MariaDB group on the `.my.cnf` config file with connection parameters",required=True)
 group.add_argument("-u", "--user_handle", help="user handle to query")
 group.add_argument("-f", "--csv_file", help="path to the csv file with the twitter handles to parse in the first (0) column")
-
-# get variables
-args = parser.parse_args()
-config_db = args.mariadb_group
-user_handle = args.user_handle
-
-## the config file for mariadb databases
-config = (ConfigObj(expanduser('~/.my.cnf')))
 
 
 # Setup API:
@@ -55,9 +46,6 @@ def connect(conf_db, database=""):
                            port=int(config[conf_db]['port']),
                            password=config[conf_db]['password'],
                            database=database)
-
-db = connect(conf_db=config_db, database='hackathon')
-c = db.cursor()
 
 def fill_database(user):
 
@@ -100,7 +88,8 @@ def fill_database(user):
     for tweet in tweets:
 
         ## tweet variables
-        created_at=tweet['created_at']
+
+        created_at=datetime.strftime(datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y'), '%Y-%m-%d %H:%M:%S')
         tweet_id=tweet['id']  ## tweet_id
         tweet_text=tweet['full_text']  ## message of the tweet
         ## check if is rt
@@ -128,6 +117,8 @@ def fill_database(user):
 
             ## retweeted tweet info
             original_created_at=tweet['retweeted_status']['created_at']
+            original_created_at=datetime.strftime(datetime.strptime(original_created_at, '%a %b %d %H:%M:%S +0000 %Y'),
+                               '%Y-%m-%d %H:%M:%S')
             original_tweet_id = tweet['retweeted_status']['id']
             original_tweet_text = tweet['retweeted_status']['full_text']
             ## insert in table tweet #############################
@@ -145,22 +136,34 @@ def fill_database(user):
 
     db.commit()
 
-if args.user_handle:
-    ## to insert just one user in the db
-    fill_database(args.user_handle)
+def print_hello():
+    print("Hi there world")
 
-elif args.csv_file:
-    ## to insert all users from a csv
-    files_path = args.csv_file
-    twitter_handles = pd.read_csv(files_path)
+if __name__ == "__main__":
 
-    count = 0
-    # feed that db!!
-    for i, row in twitter_handles.iterrows():
-        count += 1
-        import_user = (row[0][1:])
-        print(import_user)
-        fill_database(import_user)
+    # get variables
+    args = parser.parse_args()
+    config_db = args.mariadb_group
+    user_handle = args.user_handle
 
+    ## the config file for mariadb databases
+    config = (ConfigObj(expanduser('~/.my.cnf')))
+    db = connect(conf_db=config_db, database='hackathon')
+    c = db.cursor()
 
+    if args.user_handle:
+        ## to insert just one user in the db
+        fill_database(args.user_handle)
 
+    elif args.csv_file:
+        ## to insert all users from a csv
+        files_path = args.csv_file
+        twitter_handles = pd.read_csv(files_path)
+
+        count = 0
+        # feed that db!!
+        for i, row in twitter_handles.iterrows():
+            count += 1
+            import_user = (row[0][1:])
+            print(import_user)
+            fill_database(import_user)

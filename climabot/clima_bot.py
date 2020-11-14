@@ -1,16 +1,15 @@
 #!/usr/bin/env python3.7
 import tweepy
-import sys
+import sys, os
 from climabot.access import * ## change `priv_access` to `access` with your API tokens
 import subprocess
-
 
 # Setup API:
 def twitter_setup():
     # Authenticate and access using keys:
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
-#     auth.secure = True
+    auth.secure = True
     # Return API access:
     api = tweepy.API(auth,parser=tweepy.parsers.JSONParser())
     return api
@@ -35,8 +34,8 @@ class MyStreamListener(tweepy.StreamListener):
                 in_reply_to_status_id=status.in_reply_to_status_id
                 in_reply_to_user_id=status.in_reply_to_user_id
 
-                print(replied_to, in_reply_to_status_id,
-in_reply_to_user_id)
+                print(replied_to, 'nesting',
+                      in_reply_to_user_id, 'replied to', replied_to, 'message', status.full_text)
 
             except AttributeError:
 
@@ -46,6 +45,9 @@ in_reply_to_user_id)
                 in_reply_to_status_id=status.in_reply_to_status_id
                 in_reply_to_user_id=status.in_reply_to_user_id
 
+                print(replied_to, 'after atrib error',
+                      in_reply_to_user_id, 'replied to', replied_to, 'message', status.full_text)
+
             status_var=f"{answer_user},{replied_to},{answer_id}"
 
             with open('hold_that_tweet.txt', 'w') as tf:
@@ -53,19 +55,21 @@ in_reply_to_user_id)
             with open('hold_that_tweet.txt', 'r') as tf:
                 contents = tf.read()
 
-            ## add for Paul's tool
-                proc = subprocess.Popen(['echo', '0'], stdout=subprocess.PIPE)
-                score = int(proc.stdout.read().decode("utf-8"))
+                queried_user=contents.split(',')[1]
+                ## add for Paul's tool
+                cred_score = check_cred_score(queried_user, cred_tool_path)
+
+            update_status = f"Thanks for calling me, according to our calculations @{queried_user} has a credibility score of {cred_score}. to learn more visit https://bit.ly/3jSUTyJ"
 
             # set the scores here
-            if score <= 5:
-                update_status=f"Thanks for calling me, soon you will know if @{contents.split(',')[1]} has a {'-SCORE-'} in our database. to learn more visit https://bit.ly/3jSUTyJ"
-            elif score > 5:
-                update_status=f"Thanks for calling me,soon you will know if @{contents.split(',')[1]} has a {'-SCORE-'} in our database. to learn more visit https://bit.ly/3jSUTyJ"
-            else:
-                update_status=f"Thanks for calling me,soon you will know if @{contents.split(',')[1]} has a {'-SCORE-'} in our database. to learn more visit https://bit.ly/3jSUTyJ"
+            # if score <= 5:
+            #     update_status=f"Thanks for calling me, soon you will know if @{contents.split(',')[1]} has a {score} in our database. to learn more visit https://bit.ly/3jSUTyJ"
+            # elif score > 5:
+            #     update_status=f"Thanks for calling me,soon you will know if @{contents.split(',')[1]} has a {score} in our database. to learn more visit https://bit.ly/3jSUTyJ"
+            # else:
+            #     update_status=f"Thanks for calling me,soon you will know if @{contents.split(',')[1]} has a {score} in our database. to learn more visit https://bit.ly/3jSUTyJ"
 
-            # don't repty to yourself!!
+            # don't reply to yourself!!
             if status.in_reply_to_user_id != 1319577341056733184:
 
                 api.update_status(update_status,in_reply_to_status_id=contents.split(',')[2],
@@ -75,21 +79,58 @@ in_reply_to_user_id)
     def on_error(self, status):
         print(status)
 
+def check_cred_score(query_user, cred_tool_path):
+    """
+    try to run the credibility score java tool for a user. If that user does not exist on the db
+    inserts it into the database by calling `db_query_api.py` and runs the tool again.
+
+    :param query_user: user to be queried from the hackathon database
+    :param cred_tool_path: path to Pauls credibility score tool
+    :return: a credibility score for a given user
+    """
+
+    ## add for Paul's tool
+    cred_score_cmd = ['java', '-jar', f'{cred_tool_path}', '--calculate-score', f'{query_user}']
+    proc = subprocess.Popen(cred_score_cmd, stdout=subprocess.PIPE)
+    stdout=proc.stdout.read().decode("utf-8")
+    print(stdout, type(stdout))
+
+    try:
+        cred_score=float(stdout.rstrip())
+    except ValueError:
+        ## if does not exist, insert user in the database
+        insert_unknown_user = ['db_query_api.py', '-d', 'clima_botdb', '-u', f'{query_user}']
+        subprocess.call(insert_unknown_user, stdout=subprocess.PIPE)
+        proc = subprocess.Popen(cred_score_cmd, stdout=subprocess.PIPE)
+        cred_score = float(proc.stdout.read().decode("utf-8").rstrip())
+    print (cred_score)
+    return cred_score
+
 def display_help():
     """Show available commands."""
-    print("Syntax: python {} [command]".format(sys.argv[0]))
+    print("Syntax: python {} [command path]".format(sys.argv[0]))
+    print()
+    print(" Arguments:")
+    print("    start    to starts the climaBot")
+    print("    path   path to the java-credibility-tool")
     print()
     print(" Commands:")
-    print("    start    Starts the ClimaBot")
+    print("    start    Starts the climaBot")
     print("    help   Show this help screen")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 2:
         if sys.argv[1].lower() == "start":
-            api=twitter_setup()
+
+            if os.path.isfile(sys.argv[2]):
+                cred_tool_path=sys.argv[2]
+            else:
+                raise IOError('Credibility score tool path not found')
+
+            api = twitter_setup()
             myStreamListener = MyStreamListener()
-            myStream = tweepy.Stream(auth = api.auth, listener=myStreamListener)
+            myStream = tweepy.Stream(auth=api.auth, listener=myStreamListener)
             myStream.filter(track=['@isthisanexpert'], is_async=True)
-        else:
-            display_help()
+    else:
+        display_help()
