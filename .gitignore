@@ -1,3 +1,5 @@
+status.log
+hold_that_tweet.txt
 __pycache__/
 .ipynb_checkpoints/
 .flake8

@@ -7,6 +7,11 @@ import os
 from climabot.access import *
 import subprocess
 
+#
+# ## relative package paths
+# this_dir, this_filename = os.path.split(__file__)
+# ## the java tool for testing
+# java_tool_path = os.path.join(this_dir, "resources", "credibility-0.0.7")
 
 # Setup API:
 def twitter_setup():
@@ -34,17 +39,19 @@ class MyStreamListener(tweepy.StreamListener):
                 answer_user = status.user.screen_name
                 answer_id = status.id
                 #  ignore replies that by default contain mention
-                # in_reply_to_status_id = status.in_reply_to_status_id
+                in_reply_to_status_id = status.in_reply_to_status_id
                 in_reply_to_user_id = status.in_reply_to_user_id
 
-                print(
+                print('answer id', answer_id,
                     replied_to,
                     "nesting",
                     in_reply_to_user_id,
                     "replied to",
                     replied_to,
-                    "message",
-                    status.full_text,
+                    "message:",
+                    status.text.lower(),
+                    'status_id :',
+                    in_reply_to_status_id,
                 )
 
             except AttributeError:
@@ -52,17 +59,19 @@ class MyStreamListener(tweepy.StreamListener):
                 replied_to = status.in_reply_to_screen_name
                 answer_user = status.user.screen_name
                 answer_id = status.id
-                # in_reply_to_status_id = status.in_reply_to_status_id
+                in_reply_to_status_id = status.in_reply_to_status_id
                 in_reply_to_user_id = status.in_reply_to_user_id
 
-                print(
+                print('answer id', answer_id,
                     replied_to,
                     "after atrib error",
                     in_reply_to_user_id,
                     "replied to",
                     replied_to,
                     "message",
-                    status.full_text,
+                    status.text,
+                    'status_id :',
+                    in_reply_to_status_id,
                 )
 
             status_var = f"{answer_user},{replied_to},{answer_id}"
@@ -72,9 +81,13 @@ class MyStreamListener(tweepy.StreamListener):
             with open("hold_that_tweet.txt", "r") as tf:
                 contents = tf.read()
 
-                queried_user = contents.split(",")[1]
-                # added for Paul's tool
-                cred_score = check_cred_score(queried_user, cred_tool_path)
+            with open('status.log', "a") as f: # dirty solution to avoid second  reply in a thread
+                f.write(str(answer_id) + "\n")
+
+
+            queried_user = contents.split(",")[1]
+            # added for Paul's tool
+            cred_score = check_cred_score(queried_user, cred_tool_path)
 
             update_status = (
                 f"Thanks for calling me,"
@@ -94,11 +107,17 @@ class MyStreamListener(tweepy.StreamListener):
             # don't reply to yourself!!
             if status.in_reply_to_user_id != 1319577341056733184:
 
-                api.update_status(
-                    update_status,
-                    in_reply_to_status_id=contents.split(",")[2],
-                    auto_populate_reply_metadata=True,
-                )
+                with open('status.log') as f:
+                    lines = f.readlines()
+                if (str(in_reply_to_status_id) + "\n" or str(in_reply_to_status_id)) not in lines:
+
+                    print('will be tweetet')
+
+                    api.update_status(
+                        update_status,
+                        in_reply_to_status_id=contents.split(",")[2],
+                        auto_populate_reply_metadata=True
+                    )
 
     def on_error(self, status):
         print(status)

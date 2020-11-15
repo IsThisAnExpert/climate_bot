@@ -10,6 +10,7 @@ setup(
     author_email="farcilas@gmail.com",
     license="GNU Affero General Public License v3.0",
     packages=["climabot"],
+    package_data={'climabot': ['resources/*']},
     keywords=[
         "Climate Change",
         "fact-checking",
