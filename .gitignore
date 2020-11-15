@@ -1,5 +1,6 @@
 __pycache__/
 .ipynb_checkpoints/
+.flake8
 17_climate_hackaton.ipynb
 .idea/
 climabot/access.py
