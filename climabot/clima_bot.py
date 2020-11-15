@@ -152,11 +152,8 @@ def display_help():
     print("Syntax: python {} [command path]".format(sys.argv[0]))
     print()
     print(" Arguments:")
-    print("    start    to starts the climaBot")
-    print("    path   path to the java-credibility-tool")
-    print()
-    print(" Commands:")
     print("    start    Starts the climaBot")
+    print("    path   path to the java-credibility-tool")
     print("    help   Show this help screen")
 
 
