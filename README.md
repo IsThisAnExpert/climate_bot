@@ -5,7 +5,7 @@ It can be difficult for the average user of a social media platform to identify 
 
 ## What it does
 
-1. Parses a manually curated list of experts and assigns a credibility score following a *credibility score* equation(see below).
+1. Parses a manually curated list of experts and assigns a credibility score following a *credibility score* equation (see below).
 2. Populates a MariaDB database with relevant user information.
 3. Opens a stream on Twitter to hear any post with an `@IsThisAnExpert` mention.
 4. Calculates the credibility score for the user posting the message where the bot is called.*
@@ -16,7 +16,7 @@ It can be difficult for the average user of a social media platform to identify 
 A user’s credibility score is calculated by tweets and retweets of credible sources. A scientist affiliated with the IPCC, a reputable institution, many publications and citations (therefore a high h-index) will have a high credibility score. A random user that has frequently retweeted the IPCC report will be assigned with a higher credibility score than Donald Trump who does not make references to credible sources.
 
 
-###### \*future feature, currently calculates the *cred_score* for the users on the curated list
+###### \*on development, currently calculates the *cred_score* for the users on the curated list
 
 
 ## Install
@@ -80,9 +80,7 @@ positional arguments:
 * `path`
  path to the java-credibility-tool
 
-:tada: 
 to deploy the bot for automatically reply any mention run:
-
 
 ```bash
 $ clima_bot.py  start <path>/credibility-0.0.7.jar
