@@ -2,10 +2,10 @@
 import tweepy
 import sys
 import os
-
-# change `priv_access` to `access` with your API tokens
-from climabot.access import *
 import subprocess
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #
 # ## relative package paths
@@ -16,8 +16,8 @@ import subprocess
 # Setup API:
 def twitter_setup():
     # Authenticate and access using keys:
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
+    auth = tweepy.OAuthHandler(os.getenv('CONSUMER_KEY'), os.getenv('CONSUMER_SECRET'))
+    auth.set_access_token(os.getenv('ACCESS_TOKEN'), os.getenv('ACCESS_SECRET'))
     auth.secure = True
     # Return API access:
     api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
@@ -90,10 +90,10 @@ class MyStreamListener(tweepy.StreamListener):
             cred_score = check_cred_score(queried_user, cred_tool_path)
 
             update_status = (
-                f"Thanks for calling me,"
+                f"Thanks for calling me, I am still on test phase,"
                 f" according to our calculations @{queried_user} "
                 f"has a credibility score of {cred_score}. "
-                f"to learn more visit https://bit.ly/3jSUTyJ"
+                f"to learn more visit https://bit.ly/2H7QudI"
             )
 
             # set the scores here

@@ -3,11 +3,11 @@ import MySQLdb.cursors
 import pandas as pd
 import argparse
 from argparse import RawTextHelpFormatter
-from os.path import expanduser
-from configobj import ConfigObj
 import tweepy
 from datetime import datetime
-from climabot.access import *  # change `priv_access` to `access` with your API tokens
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #  define args
 parser = argparse.ArgumentParser(
@@ -33,8 +33,8 @@ group.add_argument(
 # Setup API:
 def twitter_setup():
     # Authenticate and access using keys:
-    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-    auth.set_access_token(ACCESS_TOKEN, ACCESS_SECRET)
+    auth = tweepy.OAuthHandler(os.getenv('CONSUMER_KEY'), os.getenv('CONSUMER_SECRET'))
+    auth.set_access_token(os.getenv('ACCESS_TOKEN'), os.getenv('ACCESS_SECRET'))
 
     # Return API access:
     api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
@@ -45,7 +45,7 @@ def twitter_setup():
 
 # main functions
 # database connection
-def connect(conf_db, database=""):
+def connect(conf_db, database=""): #todo
     """
     connect to db
 
@@ -55,10 +55,10 @@ def connect(conf_db, database=""):
     """
 
     return MySQLdb.connect(
-        host=config[conf_db]["host"],
-        user=config[conf_db]["user"],
-        port=int(config[conf_db]["port"]),
-        password=config[conf_db]["password"],
+        host=os.getenv('MARIADB_HOST'),
+        user=os.getenv('MARIADB_USER'),
+        port=os.getenv('MARIADB_PORT'),
+        password=os.getenv('MARIADB_PWD'),
         database=database,
     )
 

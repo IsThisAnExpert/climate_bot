@@ -25,6 +25,6 @@ setup(
             "hello_wo=climabot.db_query_api:print_hello",
         ]
     },
-    install_requires=["pandas", "pymysql", "mysqlclient", "configobj", "tweepy"],
+    install_requires=["pandas", "pymysql", "mysqlclient", "configobj", "tweepy", "python-dotenv",],
     zip_safe=False,
 )
