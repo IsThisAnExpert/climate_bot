@@ -8,3 +8,4 @@ __pycache__/
 climabot/access.py
 venv/
 climabot.egg-info
+.env
